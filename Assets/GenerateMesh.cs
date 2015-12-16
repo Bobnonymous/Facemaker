@@ -65,7 +65,7 @@ public class GenerateMesh : MonoBehaviour {
 			List<int> newTriangleIndices = new List<int>();
 			List<Vector3> newVertices = new List<Vector3>();//to be placed over facemesh.vertices
 		
-			for (int j = 0; j < trianglesIndices.Count; j+=3)//for every third index in trianglesVertices 
+			for (int j = 0; j < trianglesIndices.Count; j+=3)//for every three indices, each set of three represents a triangle
 			{
 				int sm = j*2;
 
@@ -76,7 +76,7 @@ public class GenerateMesh : MonoBehaviour {
 				Vector3 vertexFour 	= Roundify(GetMidpoint(vertexOne, 	vertexTwo), 	 origin, radius);//three indices of each triangle
 				Vector3 vertexFive 	= Roundify(GetMidpoint(vertexTwo,  vertexZero), 	 origin, radius);
 
-				newVertices.AddRange(new [] {
+				newVertices.AddRange(new [] {//adds the six new vertices to the list
 					vertexZero,
 					vertexOne,
 					vertexTwo,
@@ -85,7 +85,7 @@ public class GenerateMesh : MonoBehaviour {
 					vertexFive
 				});
 
-				newTriangleIndices.AddRange(new [] {	
+				newTriangleIndices.AddRange(new [] {//arranges the vertices to create four new triangles in place of the starting triangle
 					0+sm,3+sm,5+sm,
 					3+sm,1+sm,4+sm,
 					5+sm,4+sm,2+sm,
@@ -96,8 +96,11 @@ public class GenerateMesh : MonoBehaviour {
 			faceMesh.triangles = trianglesIndices.ToArray ();
 		}
 
-		//Doesnt Work VVVVV
-		faceMesh.uv = new Vector2[faceMesh.vertices.Length];
+        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        sphere.transform.position = faceMesh.vertices[0];
+        
+        //Doesnt Work VVVVV
+        faceMesh.uv = new Vector2[faceMesh.vertices.Length];
 		for (int i = 0; i < faceMesh.uv.Length; i++) {
 			faceMesh.uv[i] = new Vector2(faceMesh.vertices[i].x, faceMesh.vertices[i].z); 
 		}
@@ -107,18 +110,18 @@ public class GenerateMesh : MonoBehaviour {
 
 	void Update () {
 		List<Vector3> someVectors = new List<Vector3>();
-
-		for (int i = 0; i<faceMesh.vertices.Length; i++) {
+        /*
+		for (int i = 0; i<faceMesh.vertices.Length; i++) {//for each vertex in facemesh
 			Vector3 someVector = faceMesh.vertices[i];
-			//if(someVector.y > 0) {
-				//someVector.x += Random.Range(0,30); someVector.x = someVector.x%8.0f;
-				//someVector.y += Random.Range(0,30); someVector.x = someVector.x%8.0f;//= someVector.y * (1 + Random.Range(1,10)/10);
-				//someVector.z += Random.Range(0,30); someVector.z = someVector.z%8.0f;
-			//someVectors.Add(someVector);
-			//}
+			if(someVector.y > 0) {
+				someVector.x += Random.Range(0,30); someVector.x = someVector.x%8.0f;
+                someVector.y = someVector.y + Random.Range(0,30); someVector.y = someVector.x % 8.0f; someVector.y = someVector.y * (1 + Random.Range(1,10)/10);
+				someVector.z += Random.Range(0,30); someVector.z = someVector.z%8.0f;
+			someVectors.Add(someVector);
+			}
 		}
 		faceMesh.vertices = someVectors.ToArray();
-
+        */
 		if (Input.GetMouseButton (0)) {
 			RaycastHit raycastHit;
 
