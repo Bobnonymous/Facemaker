@@ -1,22 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class GenerateMesh : MonoBehaviour {
-    new public GameObject gameObject;
+    
+	new public GameObject Face;
+	Mesh faceMesh;
+
+	Vector3 origin = new Vector3 (0, 0, 0);
 
     void Start () {
 		
-        gameObject = GameObject.Find("Face");
-        gameObject.AddComponent<MeshFilter>();
-        gameObject.AddComponent<MeshRenderer>();
+        Face = GameObject.Find("Face");
+		Face.AddComponent<MeshFilter>();
+        Face.AddComponent<MeshRenderer>();
 
-        Mesh faceMesh = GetComponent<MeshFilter>().mesh;
+        faceMesh = GetComponent<MeshFilter>().mesh;
         faceMesh.Clear();
         
-		Vector3 origin = new Vector3 (0, 0, 0);
 		float gr = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;//golen ratio (a+b is to a as a is to b)
-		float centerDist = (Mathf.Sqrt ((gr * gr) + 1));
+		float radius = (Mathf.Sqrt ((gr * gr) + 1));
 		int smoothLevel = 1;
 
         // create 12 vertices of a icosahedron, via 3 intersecting rectangles
@@ -55,13 +59,7 @@ public class GenerateMesh : MonoBehaviour {
 			9,  6,  5,
 			5,  6, 10,
 			5,  10, 3};
-
-		//faceMesh.triangles = trianglesIndices.ToArray();
-		//faceMesh.vertices
-		//faceMesh.vertices = newVertices.ToArray();
-		//trianglesIndices = newTriangleIndices;
-		//faceMesh.triangles = trianglesIndices.ToArray ();
-
+		
 		for (int i = 0; i < smoothLevel; i++)//recurs a number of times = the smoothLevel, each loop quadruples the number of vertices
 		{
 			List<int> newTriangleIndices = new List<int>();
@@ -71,12 +69,12 @@ public class GenerateMesh : MonoBehaviour {
 			{
 				int sm = j*2;
 
-				Vector3 vertexZero 	= faceMesh.vertices[trianglesIndices[j]];
-				Vector3 vertexOne 	= faceMesh.vertices[trianglesIndices[j+1]];
-				Vector3 vertexTwo = faceMesh.vertices[trianglesIndices[j+2]];
-				Vector3 vertexThree 	= GetMidpoint(vertexZero, 	vertexOne);		//gets the midpoints of the 
-				Vector3 vertexFour 	= GetMidpoint(vertexOne, 	vertexTwo); 	//three indices of each triangle
-				Vector3 vertexFive 	= GetMidpoint(vertexTwo, 	vertexZero);
+				Vector3 vertexZero 	= Roundify(faceMesh.vertices[trianglesIndices[j	 ]], origin, radius);
+				Vector3 vertexOne 	= Roundify(faceMesh.vertices[trianglesIndices[j+1]], origin, radius);
+				Vector3 vertexTwo 	= Roundify(faceMesh.vertices[trianglesIndices[j+2]], origin, radius);
+				Vector3 vertexThree = Roundify(GetMidpoint(vertexZero, 	vertexOne), 	 origin, radius);//gets the midpoints of the 
+				Vector3 vertexFour 	= Roundify(GetMidpoint(vertexOne, 	vertexTwo), 	 origin, radius);//three indices of each triangle
+				Vector3 vertexFive 	= Roundify(GetMidpoint(vertexTwo,  vertexZero), 	 origin, radius);
 
 				newVertices.AddRange(new [] {
 					vertexZero,
@@ -87,7 +85,6 @@ public class GenerateMesh : MonoBehaviour {
 					vertexFive
 				});
 
-
 				newTriangleIndices.AddRange(new [] {	
 					0+sm,3+sm,5+sm,
 					3+sm,1+sm,4+sm,
@@ -97,17 +94,45 @@ public class GenerateMesh : MonoBehaviour {
 			faceMesh.vertices = newVertices.ToArray();//replace the previous set of vertices with the smoothed one
 			trianglesIndices = newTriangleIndices;
 			faceMesh.triangles = trianglesIndices.ToArray ();
-			for (int k = 0; k < faceMesh.vertices.Length; k++) {
-				faceMesh.vertices[k] = Roundify(faceMesh.vertices[k], origin, centerDist);
-				//float debug = Vector3.Distance(faceMesh.vertices[k], origin);
-				//float z = 0f;
-			}
+		}
+
+		//Doesnt Work VVVVV
+		faceMesh.uv = new Vector2[faceMesh.vertices.Length];
+		for (int i = 0; i < faceMesh.uv.Length; i++) {
+			faceMesh.uv[i] = new Vector2(faceMesh.vertices[i].x, faceMesh.vertices[i].z); 
 		}
 	}
 	
-	
+	bool grabbed;
+
 	void Update () {
-		
+		List<Vector3> someVectors = new List<Vector3>();
+
+		for (int i = 0; i<faceMesh.vertices.Length; i++) {
+			Vector3 someVector = faceMesh.vertices[i];
+			//if(someVector.y > 0) {
+				//someVector.x += Random.Range(0,30); someVector.x = someVector.x%8.0f;
+				//someVector.y += Random.Range(0,30); someVector.x = someVector.x%8.0f;//= someVector.y * (1 + Random.Range(1,10)/10);
+				//someVector.z += Random.Range(0,30); someVector.z = someVector.z%8.0f;
+			//someVectors.Add(someVector);
+			//}
+		}
+		faceMesh.vertices = someVectors.ToArray();
+
+		if (Input.GetMouseButton (0)) {
+			RaycastHit raycastHit;
+
+			if (Physics.Raycast (Camera.main.transform.position, Input.mousePosition, out raycastHit)) {
+				grabbed = true;
+				int hitTriangle = raycastHit.triangleIndex;
+				Vector3 p0 = faceMesh.vertices[faceMesh.triangles[hitTriangle * 3 + 0]];
+				Vector3 p1 = faceMesh.vertices[faceMesh.triangles[hitTriangle * 3 + 1]];
+				Vector3 p2 = faceMesh.vertices[faceMesh.triangles[hitTriangle * 3 + 2]];
+				Roundify(p0, origin, 200);
+				Roundify(p0, origin, 200);
+				Roundify(p0, origin, 200);
+			}
+		}
 	}
 
 	Vector3 GetMidpoint(Vector3 vectorA, Vector3 vectorB) {
@@ -123,8 +148,6 @@ public class GenerateMesh : MonoBehaviour {
 		Vector3 offset = vertex - center;
 		offset.Normalize ();
 		return offset * distance;
-		//Vector3 bug = (vertex - center).normalized * distance + center;
-		//return bug;
 	}
 }
 
