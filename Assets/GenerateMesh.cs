@@ -7,8 +7,9 @@ public class GenerateMesh : MonoBehaviour {
     
 	public GameObject Face;
 	public Mesh faceMesh;
+    const float gr = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;//golen ratio (a+b is to a as a is to b) 
 
-	Vector3 origin = new Vector3 (0, 0, 0);
+    Vector3 origin = new Vector3 (0, 0, 0);
 
     void Start() {
 
@@ -19,7 +20,7 @@ public class GenerateMesh : MonoBehaviour {
         faceMesh = GetComponent<MeshFilter>().mesh;
         faceMesh.Clear();
 
-        float gr = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;//golen ratio (a+b is to a as a is to b)
+        //float gr = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;//golen ratio (a+b is to a as a is to b)
         float radius = (Mathf.Sqrt((gr * gr) + 1));
         int smoothLevel = 3;
 
@@ -69,12 +70,12 @@ public class GenerateMesh : MonoBehaviour {
             {
                 int sm = j * 2;//start multiplier
 
-                Vector3 vertexZero = Roundify(faceMesh.vertices[trianglesIndices[j]], origin, radius);
-                Vector3 vertexOne = Roundify(faceMesh.vertices[trianglesIndices[j + 1]], origin, radius);
-                Vector3 vertexTwo = Roundify(faceMesh.vertices[trianglesIndices[j + 2]], origin, radius);
-                Vector3 vertexThree = Roundify(GetMidpoint(vertexZero, vertexOne), origin, radius);//gets the midpoints of the 
-                Vector3 vertexFour = Roundify(GetMidpoint(vertexOne, vertexTwo), origin, radius);//three indices of each triangle
-                Vector3 vertexFive = Roundify(GetMidpoint(vertexTwo, vertexZero), origin, radius);
+                Vector3 vertexZero = SetVectorDist(faceMesh.vertices[trianglesIndices[j]], origin, radius);
+                Vector3 vertexOne = SetVectorDist(faceMesh.vertices[trianglesIndices[j + 1]], origin, radius);
+                Vector3 vertexTwo = SetVectorDist(faceMesh.vertices[trianglesIndices[j + 2]], origin, radius);
+                Vector3 vertexThree = SetVectorDist(GetMidpoint(vertexZero, vertexOne), origin, radius);//gets the midpoints of the 
+                Vector3 vertexFour = SetVectorDist(GetMidpoint(vertexOne, vertexTwo), origin, radius);//three indices of each triangle
+                Vector3 vertexFive = SetVectorDist(GetMidpoint(vertexTwo, vertexZero), origin, radius);
 
                 newVertices.AddRange(new[] {//adds the six new vertices to the list
 					vertexZero,
@@ -96,34 +97,33 @@ public class GenerateMesh : MonoBehaviour {
             faceMesh.triangles = trianglesIndices.ToArray();
         }
 
-        //GameObject nose = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        //nose.transform.position = faceMesh.vertices[10];
-
         List<Vector3> overwriteVertices = new List<Vector3>();
-        Vector3 xMostVertex = new Vector3(0, 0, 0);
+        Vector3 xMostVertex = new Vector3(0, 0, 0);//the vertex that is the furthest from the center on the x axis, this is the direction the face looks
 
         for (int i = 0; i < faceMesh.vertices.Length; i++) {//for each vertex in facemesh
 
             if (faceMesh.vertices[i].x > xMostVertex.x)
-                xMostVertex.x = faceMesh.vertices[i].x;
+                xMostVertex.x = faceMesh.vertices[i].x;//finds x most
 
             Vector3 overwriteVertex = faceMesh.vertices[i];
-            if (overwriteVertex.y <= 0) {
+            if (overwriteVertex.y >= 0) {
                 if (overwriteVertex.x > 0) {
                     overwriteVertex.x = overwriteVertex.x * 1.0f;
                 }
             }
-            if (overwriteVertex.y > 0) {
+            if (overwriteVertex.y < 0) {
                 overwriteVertex.y = overwriteVertex.y * 1.3f;
             }
             overwriteVertices.Add(overwriteVertex);
         }
         faceMesh.vertices = overwriteVertices.ToArray();
-        GameObject nose = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        GameObject nose = GameObject.CreatePrimitive(PrimitiveType.Sphere); nose.name = "nose";
+        
+        nose.transform.position = xMostVertex;
 
         //FIX
-        Vector3 temp = new Vector3(0, (float)Random.Range(1, 2), 0);
-        nose.transform.position += temp;
+        Vector3 temp = nose.transform.position; temp.y += Random.Range(0, 1.5f);
+        nose.transform.position = temp;
         
         //Doesnt Work VVVVV
         faceMesh.uv = new Vector2[faceMesh.vertices.Length];
@@ -146,9 +146,9 @@ public class GenerateMesh : MonoBehaviour {
 				Vector3 p0 = faceMesh.vertices[faceMesh.triangles[hitTriangle * 3 + 0]];
 				Vector3 p1 = faceMesh.vertices[faceMesh.triangles[hitTriangle * 3 + 1]];
 				Vector3 p2 = faceMesh.vertices[faceMesh.triangles[hitTriangle * 3 + 2]];
-				Roundify(p0, origin, 200);
-				Roundify(p0, origin, 200);
-				Roundify(p0, origin, 200);
+				SetVectorDist(p0, origin, 200);
+				SetVectorDist(p0, origin, 200);
+				SetVectorDist(p0, origin, 200);
 			}
 		}
 	}
@@ -163,12 +163,27 @@ public class GenerateMesh : MonoBehaviour {
 	}
 
     //sets the distance between vertex and center to float distance
-	Vector3 Roundify(Vector3 vertex, Vector3 center, float distance)
+	Vector3 SetVectorDist(Vector3 vertex, Vector3 center, float distance)
 	{
 		Vector3 offset = vertex - center;
 		offset.Normalize ();
 		return offset * distance;
 	}
+
+    Vector3[] GenerateNose(Vector3 bridgeLocation) {
+        /*Vector3[] nose = new Vector3[] {
+                         new Vector3 (bridgeLocation.x, bridgeLocation.y, bridgeLocation.z),
+                         new Vector3 (0,0,0),
+                         new Vector3 (0,0,0),
+                         new Vector3 (0,0,0)
+        };*/
+        Vector3[] nose = new Vector3[4];
+        nose[0] = bridgeLocation; nose[0].x -= 
+        nose[1] = 
+        nose[2]
+        nose[3]
+        return nose;
+    }
 }
 
     
