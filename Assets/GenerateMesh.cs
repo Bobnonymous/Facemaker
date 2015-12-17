@@ -111,10 +111,7 @@ public class GenerateMesh : MonoBehaviour {
             Vector3 overwriteVertex = faceMesh.vertices[i];
             if (overwriteVertex.y >= 0)
             {
-                if (overwriteVertex.x > 0)
-                {
-                    overwriteVertex.x = overwriteVertex.x * 1.0f;
-                }
+                
             }
             if (overwriteVertex.y < 0)
             {
@@ -122,11 +119,15 @@ public class GenerateMesh : MonoBehaviour {
             }
             overwriteVertices.Add(overwriteVertex);
         }
-
-        //GenerateNose(xMostVertex, radius);
-
         faceMesh.vertices = overwriteVertices.ToArray();
-        
+
+        GameObject eye1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);eye1.name = "rightEye";
+        eye1.transform.position = new Vector3(xMostVertex.x*0.85f, 0, -gr*0.3f);
+        eye1.transform.localScale = new Vector3(gr/3, 0.5f, 1);
+        GameObject eye2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);eye2.name = "leftEye";
+        eye2.transform.position = new Vector3(xMostVertex.x*0.85f, 0, gr*0.3f);
+        eye2.transform.localScale = new Vector3(gr/3, 0.5f, 1);
+
         //Doesnt Work VVVVV
         faceMesh.uv = new Vector2[faceMesh.vertices.Length];
 		for (int i = 0; i < faceMesh.uv.Length; i++) {
@@ -170,31 +171,6 @@ public class GenerateMesh : MonoBehaviour {
 		offset.Normalize ();
 		return offset * distance;
 	}
-
-
-    /*
-    void GenerateNose(Vector3 topOfNose, float radius)
-    {
-        GameObject Nose = new GameObject();
-        Nose.name = "Nose";
-
-        //MeshFilter meshFilter = GetComponent<MeshFilter>(); 
-        Mesh noseMesh = new Mesh();
-        Nose.AddComponent<MeshFilter>();
-        Nose.AddComponent<MeshRenderer>();
-        Nose.GetComponent<MeshFilter>();
-        
-        MeshFilter nosemeshFilter = new MeshFilter();
-        nosemeshFilter.mesh = noseMesh;
-
-        Vector3 p0 = topOfNose;
-        Vector3 p1 = new Vector3(p0.x, p0.y - radius / 2, p0.z - radius / 3);
-        Vector3 p2 = new Vector3(p0.x, p0.y - radius / 2, p0.z + radius / 3);
-        Vector3 p3 = new Vector3(p0.x + radius / 2, p0.y - radius / 2, p0.z);
-
-        noseMesh.Clear();
-        noseMesh.vertices = new Vector3[] { p0, p1, p2, p3 };
-    }*/
 }
 
     
