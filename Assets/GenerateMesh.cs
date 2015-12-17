@@ -128,6 +128,11 @@ public class GenerateMesh : MonoBehaviour {
         eye2.transform.position = new Vector3(xMostVertex.x*0.85f, 0, gr*0.3f);
         eye2.transform.localScale = new Vector3(gr/3, 0.5f, 1);
 
+        Color fleshtone = new Color(240, 205, 180);
+        Material material = new Material(Shader.Find("Diffuse"));
+        material.color = fleshtone;
+        Face.renderer.material = material;
+
         //Doesnt Work VVVVV
         faceMesh.uv = new Vector2[faceMesh.vertices.Length];
 		for (int i = 0; i < faceMesh.uv.Length; i++) {
