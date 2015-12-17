@@ -131,7 +131,7 @@ public class GenerateMesh : MonoBehaviour {
         Color fleshtone = new Color(240, 205, 180);
         Material material = new Material(Shader.Find("Diffuse"));
         material.color = fleshtone;
-        Face.renderer.material = material;
+        Face.GetComponent<Renderer>().material = material;
 
         //Doesnt Work VVVVV
         faceMesh.uv = new Vector2[faceMesh.vertices.Length];
