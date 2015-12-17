@@ -120,8 +120,11 @@ public class GenerateMesh : MonoBehaviour {
         }
         faceMesh.vertices = overwriteVertices.ToArray();
         GameObject nose = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        nose.transform.position = xMostVertex;
 
+        //FIX
+        Vector3 temp = new Vector3(0, (float)Random.Range(1, 2), 0);
+        nose.transform.position += temp;
+        
         //Doesnt Work VVVVV
         faceMesh.uv = new Vector2[faceMesh.vertices.Length];
 		for (int i = 0; i < faceMesh.uv.Length; i++) {
