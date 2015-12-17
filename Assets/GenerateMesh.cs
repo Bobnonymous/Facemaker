@@ -7,7 +7,7 @@ public class GenerateMesh : MonoBehaviour {
     
 	public GameObject Face;
 	public Mesh faceMesh;
-
+   
     float gr = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;//golen ratio (a+b is to a as a is to b)
     Vector3 origin = new Vector3 (0, 0, 0);
 
@@ -60,7 +60,8 @@ public class GenerateMesh : MonoBehaviour {
             5,  6, 10,
             5,  10, 3};
 
-        for (int i = 0; i < smoothLevel; i++)//recurs a number of times = the smoothLevel, each loop quadruples the number of vertices
+        //Triangle smoothing loop, each loop quadruples the number of faces
+        for (int i = 0; i < smoothLevel; i++)
         {
             List<int> newTriangleIndices = new List<int>();
             List<Vector3> newVertices = new List<Vector3>();//to be placed over facemesh.vertices
@@ -97,6 +98,8 @@ public class GenerateMesh : MonoBehaviour {
             faceMesh.triangles = trianglesIndices.ToArray();
         }
 
+
+        //Mesh mutation
         List<Vector3> overwriteVertices = new List<Vector3>();
         Vector3 xMostVertex = new Vector3(0, 0, 0);//the vertex that is the furthest from the center on the x axis, this is the direction the face looks
 
@@ -106,50 +109,38 @@ public class GenerateMesh : MonoBehaviour {
                 xMostVertex.x = faceMesh.vertices[i].x;//finds x most
 
             Vector3 overwriteVertex = faceMesh.vertices[i];
-            if (overwriteVertex.y >= 0) {
-                if (overwriteVertex.x > 0) {
+            if (overwriteVertex.y >= 0)
+            {
+                if (overwriteVertex.x > 0)
+                {
                     overwriteVertex.x = overwriteVertex.x * 1.0f;
                 }
             }
-            if (overwriteVertex.y < 0) {
+            if (overwriteVertex.y < 0)
+            {
                 overwriteVertex.y = overwriteVertex.y * 1.3f;
             }
             overwriteVertices.Add(overwriteVertex);
         }
 
-        overwriteVertices.AddRange(GenerateNose(xMostVertex, radius));
+        //GenerateNose(xMostVertex, radius);
+
         faceMesh.vertices = overwriteVertices.ToArray();
-
-        int verticesLength = faceMesh.vertices.Length;
-        List<int> tempTriangles = faceMesh.triangles.ToList();
-        tempTriangles.AddRange(new[] {
-                    verticesLength - 3, verticesLength - 2, verticesLength - 1,
-                    verticesLength - 3, verticesLength - 2, verticesLength,
-                    verticesLength - 3, verticesLength, verticesLength - 1,
-                    verticesLength - 2, verticesLength, verticesLength - 1});
-        faceMesh.triangles = tempTriangles.ToArray();
         
-        //faceMesh.vertices.concat(GenerateNose(xMostVertex, radius));
-
-        //FIX
-        //Vector3 temp = nose.transform.position; temp.y += Random.Range(0, 1.5f);
-        //nose.transform.position = temp;
-
         //Doesnt Work VVVVV
         faceMesh.uv = new Vector2[faceMesh.vertices.Length];
 		for (int i = 0; i < faceMesh.uv.Length; i++) {
-			faceMesh.uv[i] = new Vector2(faceMesh.vertices[i].x, faceMesh.vertices[i].z); 
-		}
+			faceMesh.uv[i] = new Vector2(faceMesh.vertices[i].x, faceMesh.vertices[i].z);
+
+            faceMesh.Optimize();
+        }
 	}
 	
 	bool grabbed;
 
 	void Update () {
-		
-        
 		if (Input.GetMouseButton (0)) {
 			RaycastHit raycastHit;
-
 			if (Physics.Raycast (Camera.main.transform.position, Input.mousePosition, out raycastHit)) {
 				grabbed = true;
 				int hitTriangle = raycastHit.triangleIndex;
@@ -180,14 +171,30 @@ public class GenerateMesh : MonoBehaviour {
 		return offset * distance;
 	}
 
-    List<Vector3> GenerateNose(Vector3 topOfNose, float radius) {
-        List<Vector3> nose = new List<Vector3>();
-        nose.Add(topOfNose);
-        nose.Add(new Vector3(nose[0].x, nose[0].y - radius/2, nose[0].z - radius/3));
-        nose.Add(new Vector3(nose[0].x, nose[0].y - radius/2, nose[0].z + radius/3));
-        nose.Add(new Vector3(nose[0].x + radius, nose[0].y - radius / 2, nose[0].z - radius / 3));
-        return nose;
-    }
+
+    /*
+    void GenerateNose(Vector3 topOfNose, float radius)
+    {
+        GameObject Nose = new GameObject();
+        Nose.name = "Nose";
+
+        //MeshFilter meshFilter = GetComponent<MeshFilter>(); 
+        Mesh noseMesh = new Mesh();
+        Nose.AddComponent<MeshFilter>();
+        Nose.AddComponent<MeshRenderer>();
+        Nose.GetComponent<MeshFilter>();
+        
+        MeshFilter nosemeshFilter = new MeshFilter();
+        nosemeshFilter.mesh = noseMesh;
+
+        Vector3 p0 = topOfNose;
+        Vector3 p1 = new Vector3(p0.x, p0.y - radius / 2, p0.z - radius / 3);
+        Vector3 p2 = new Vector3(p0.x, p0.y - radius / 2, p0.z + radius / 3);
+        Vector3 p3 = new Vector3(p0.x + radius / 2, p0.y - radius / 2, p0.z);
+
+        noseMesh.Clear();
+        noseMesh.vertices = new Vector3[] { p0, p1, p2, p3 };
+    }*/
 }
 
     
