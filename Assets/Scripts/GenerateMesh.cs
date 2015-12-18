@@ -23,7 +23,7 @@ public class GenerateMesh : MonoBehaviour {
         faceMesh.Clear();
 
         float radius = (Mathf.Sqrt((gr * gr) + 1));//the radius is the diagonal of the rectangle with height = 1 and width = gr
-        int smoothLevel = 4;
+        int smoothLevel = 5;
 
         // create 12 vertices of an icosahedron, via 3 intersecting rectangles
         faceMesh.vertices = new Vector3[] {
