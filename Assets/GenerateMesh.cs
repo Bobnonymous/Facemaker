@@ -106,7 +106,7 @@ public class GenerateMesh : MonoBehaviour {
 
             Vector3 overwriteVertex = faceMesh.vertices[i];
 
-            if (overwriteVertex.y >= 0){//shapign the upper half of the face
+            if (overwriteVertex.y >= 0){//shaping the upper half of the face
                 overwriteVertex.y += gr*0.3f;
             }
             if (overwriteVertex.y < 0) {//shaping the lower half of the face
@@ -157,7 +157,7 @@ public class GenerateMesh : MonoBehaviour {
             Debug.Log(raycastHit.triangleIndex + "index of triangle");
             
             for (int i = 0; i < overwriteVertices.Count; i++) {
-                if (Vector3.Distance(overwriteVertices[i], hitPoint) < 0.5f) {
+                if (Vector3.Distance(overwriteVertices[i], hitPoint) < 0.3f) {
 
                     Debug.Log(overwriteVertices[i]);//Debug.Log(faceMesh.vertices[i]);
 
