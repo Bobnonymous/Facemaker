@@ -158,13 +158,13 @@ public class GenerateMesh : MonoBehaviour {
             Debug.Log(raycastHit.triangleIndex + "index of triangle");
             
             for (int i = 0; i < overwriteVertices.Count; i++) {
-                if (Vector3.Distance(overwriteVertices[i], hitPoint) < 0.3f) {
+                if (Vector3.Distance(overwriteVertices[i], hitPoint) < 0.3f*Face.transform.localScale.x) {
 					//expand if left mouse button, contract if right mouse button
                     float distance = Vector3.Distance(overwriteVertices[i], hitPoint);
                     if(Input.GetMouseButton(0))
-                        overwriteVertices[i] *= 1.05f;
+                        overwriteVertices[i] *= 1.02f;
                     if (Input.GetMouseButton(1))
-                        overwriteVertices[i] *= 0.95f;
+                        overwriteVertices[i] *= 0.98f;
                 }
             }
             faceMesh.SetVertices(overwriteVertices);
