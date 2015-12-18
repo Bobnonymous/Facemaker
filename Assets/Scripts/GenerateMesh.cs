@@ -11,7 +11,7 @@ public class GenerateMesh : MonoBehaviour {
     //MeshFilter meshFilter;
    
     float gr = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;//golen ratio (a+b is to a as a is to b)
-    Vector3 origin = new Vector3 (0, 0, 0);
+	Vector3 origin = Vector3.zero;
 
     void Start() {
 
@@ -108,7 +108,7 @@ public class GenerateMesh : MonoBehaviour {
             Vector3 overwriteVertex = faceMesh.vertices[i];
 
             if (overwriteVertex.y >= 0){//shaping the upper half of the face
-                overwriteVertex.y += gr*0.3f;
+                //overwriteVertex.y += gr*0.3f;
             }
             if (overwriteVertex.y < 0) {//shaping the lower half of the face
                 overwriteVertex.x += (overwriteVertex.y * -0.25f);
@@ -150,8 +150,8 @@ public class GenerateMesh : MonoBehaviour {
         overwriteVertices = faceMesh.vertices.ToList();
 
         if (Input.GetMouseButton(0) || Input.GetMouseButton(1)) {
-            Physics.Raycast(camera.transform.position, camera.transform.forward, out raycastHit);
-            //Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition));
+            //Physics.Raycast(camera.transform.position, camera.transform.forward, out raycastHit);
+            Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition), out raycastHit);
            
             Vector3 hitPoint = raycastHit.point;
             Debug.Log(hitPoint + "hitpoint");
@@ -162,13 +162,19 @@ public class GenerateMesh : MonoBehaviour {
 					//expand if left mouse button, contract if right mouse button
                     float distance = Vector3.Distance(overwriteVertices[i], hitPoint);
                     if(Input.GetMouseButton(0))
-                        overwriteVertices[i] *= 1.02f;
+                        overwriteVertices[i] *= 1.002f;
                     if (Input.GetMouseButton(1))
-                        overwriteVertices[i] *= 0.98f;
+                        overwriteVertices[i] *= 0.998f;
                 }
             }
             faceMesh.SetVertices(overwriteVertices);
         }
+
+		if (Input.GetKey ("l")) {
+			Face.transform.LookAt(GameObject.Find("Arwing").transform);
+			//camera.transform.position = new Vector3(15,0,0);
+		}
+		Face.transform.position = Vector3.zero;
     }
 
     //returns the midpoint of two Vector3s
