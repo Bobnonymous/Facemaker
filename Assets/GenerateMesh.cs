@@ -7,7 +7,7 @@ public class GenerateMesh : MonoBehaviour {
     
 	public GameObject Face;
 	public Mesh faceMesh;
-    MeshFilter meshFilter;
+    //MeshFilter meshFilter;
    
     float gr = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;//golen ratio (a+b is to a as a is to b)
     Vector3 origin = new Vector3 (0, 0, 0);
@@ -18,13 +18,13 @@ public class GenerateMesh : MonoBehaviour {
         Face.AddComponent<MeshFilter>();
         Face.AddComponent<MeshRenderer>();
 
-        meshFilter = GetComponent<MeshFilter>();
+        //meshFilter = GetComponent<MeshFilter>();
 
         faceMesh = GetComponent<MeshFilter>().mesh;
         faceMesh.Clear();
 
         float radius = (Mathf.Sqrt((gr * gr) + 1));//the radius is the diagonal of the rectangle with height = 1 and width = gr
-        int smoothLevel = 4;
+        int smoothLevel = 3;
 
         // create 12 vertices of an icosahedron, via 3 intersecting rectangles
         faceMesh.vertices = new Vector3[] {
@@ -114,7 +114,7 @@ public class GenerateMesh : MonoBehaviour {
         for (int i = 0; i < faceMesh.vertices.Length; i++) {//for each vertex in facemesh           
             Vector3 overwriteVertex = faceMesh.vertices[i];
             if (overwriteVertex.y >= 0){//shapign the upper half of the face
-                
+                overwriteVertex.y += gr*0.3f;
             }
             if (overwriteVertex.y < 0) {//shaping the lower half of the face
                 overwriteVertex.x += (overwriteVertex.y * -0.25f);
@@ -152,45 +152,40 @@ public class GenerateMesh : MonoBehaviour {
         faceMesh.RecalculateBounds();
         faceMesh.RecalculateNormals();
         faceMesh.Optimize();
+
+        MeshCollider meshCollider = gameObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
     }
 	
-	bool grabbed;
     public RaycastHit raycastHit;
-
+    
 	void Update () {
         /*Vector3 randomVertex = faceMesh.vertices[Random.Range(0, faceMesh.vertices.Length)];
         Vector3 tempVertex = randomVertex *= Random.Range(-0.5f, 0.5f);
         randomVertex = tempVertex;*/
+        Vector3 cameraPos = GameObject.FindGameObjectWithTag("MainCamera").transform.position;
         List<Vector3> overwriteVertices = faceMesh.vertices.ToList();
 
-        if (Input.GetMouseButtonDown (0)) {
-            Debug.DrawLine(Camera.main.transform.position, Input.mousePosition, Color.red, 1, false);
-            Debug.DrawLine(origin, new Vector3(100,100,100), Color.red, 1, false);
 
+        if (Input.GetMouseButtonDown(0))
+        {
+            faceMesh.SetVertices(overwriteVertices);
+
+            //Debug.DrawLine(Camera.main.transform.position, Input.mousePosition, Color.red, 1, false);
+            //Debug.DrawLine(origin, new Vector3(100, 100, 100), Color.red, 1, false);
+            Physics.Raycast(cameraPos, Input.mousePosition, out raycastHit);
+        
+            /*
             //RaycastHit rayCastHit;
-            if (Physics.Raycast(Camera.main.transform.position, Input.mousePosition, out raycastHit)) {
+            if (Physics.Raycast(Camera.main.transform.position, Input.mousePosition, out raycastHit))
+            {
                 int hitTriangle = raycastHit.triangleIndex;
                 SetVectorDist(overwriteVertices[hitTriangle * 3 + 0], origin, 99); ;
                 /*
                 Vector3 hitTriangle0 = overwriteVertices[hitTriangle * 3 + 0];
                 Vector3 hitTriangle1 = overwriteVertices[hitTriangle * 3 + 1];
-                Vector3 hitTriangle2 = overwriteVertices[hitTriangle * 3 + 2];*/
-            }  
+                Vector3 hitTriangle2 = overwriteVertices[hitTriangle * 3 + 2];
+            }*/
         }
-
-        /*if (Input.GetMouseButton (0)) {
-			RaycastHit raycastHit;
-			if (Physics.Raycast (Camera.main.transform.position, Input.mousePosition, out raycastHit)) {
-				grabbed = true;
-				int hitTriangle = raycastHit.triangleIndex;
-				Vector3 p0 = faceMesh.vertices[faceMesh.triangles[hitTriangle * 3 + 0]];
-				Vector3 p1 = faceMesh.vertices[faceMesh.triangles[hitTriangle * 3 + 1]];
-				Vector3 p2 = faceMesh.vertices[faceMesh.triangles[hitTriangle * 3 + 2]];
-				SetVectorDist(p0, origin, 200);
-				SetVectorDist(p0, origin, 200);
-				SetVectorDist(p0, origin, 200);
-			}
-		}*/
     }
 
     //returns the midpoint of two Vector3s
