@@ -8,7 +8,7 @@ public class GenerateMesh : MonoBehaviour {
     
 	public GameObject Face;
 	public Mesh faceMesh;
-    //MeshFilter meshFilter;
+	public int smoothLevel = 4;
    
     float gr = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;//golen ratio (a+b is to a as a is to b)
 	Vector3 origin = Vector3.zero;
@@ -23,7 +23,6 @@ public class GenerateMesh : MonoBehaviour {
         faceMesh.Clear();
 
         float radius = (Mathf.Sqrt((gr * gr) + 1));//the radius is the diagonal of the rectangle with height = 1 and width = gr
-        int smoothLevel = 5;
 
         // create 12 vertices of an icosahedron, via 3 intersecting rectangles
         faceMesh.vertices = new Vector3[] {
