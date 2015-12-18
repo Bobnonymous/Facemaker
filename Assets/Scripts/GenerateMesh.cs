@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿//Robert Cole - C12391946 - GameEngines 1 Assignment
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -158,17 +159,12 @@ public class GenerateMesh : MonoBehaviour {
             
             for (int i = 0; i < overwriteVertices.Count; i++) {
                 if (Vector3.Distance(overwriteVertices[i], hitPoint) < 0.3f) {
-
-                    Debug.Log(overwriteVertices[i]);//Debug.Log(faceMesh.vertices[i]);
-
+					//expand if left mouse button, contract if right mouse button
                     float distance = Vector3.Distance(overwriteVertices[i], hitPoint);
-                    Debug.Log(distance + "this is distance");
                     if(Input.GetMouseButton(0))
-                        overwriteVertices[i] *= 1.05f;// * distance;
+                        overwriteVertices[i] *= 1.05f;
                     if (Input.GetMouseButton(1))
                         overwriteVertices[i] *= 0.95f;
-
-                    Debug.Log(overwriteVertices[i]);//Debug.Log(faceMesh.vertices[i]);
                 }
             }
             faceMesh.SetVertices(overwriteVertices);
@@ -192,8 +188,9 @@ public class GenerateMesh : MonoBehaviour {
 		return offset * distance;
 	}
 
+	//Create two eye shapes and add the to the face
     void AddeEyes(GameObject Face, Mesh faceMesh) {
-        Vector3 xMostVertex = new Vector3(); //the vertex that is the furthest from the center on the x axis, this is the direction the face looks
+        Vector3 xMostVertex = new Vector3(); //Vertex furthest from the center on the x axis, this is the direction the face looks
             for (int i = 0; i < faceMesh.vertices.Length; i++) { 
             if (faceMesh.vertices[i].x > xMostVertex.x)
                 xMostVertex.x = faceMesh.vertices[i].x;
@@ -205,6 +202,7 @@ public class GenerateMesh : MonoBehaviour {
         rightEye.transform.position = new Vector3(xMostVertex.x * 0.85f, 0, -gr * 0.3f);
         rightEye.transform.localScale = new Vector3(gr / 3, 0.5f, 1);
         GameObject leftEye = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+		//rightEye.GetComponent<Material> ().SetColor ("rightEye",Color.red);
         leftEye.name = "leftEye";
         leftEye.transform.parent = Face.transform;
         leftEye.transform.position = new Vector3(xMostVertex.x * 0.85f, 0, gr * 0.3f);

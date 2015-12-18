@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿//Robert Cole - C12391946 - GameEngines 1 Assignment
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,18 +16,16 @@ public class GenerateNose : MonoBehaviour {
         Nose = GameObject.Find("Nose");
         Nose.AddComponent<MeshFilter>();
         Nose.AddComponent<MeshRenderer>();
-
-        noseMesh = GetComponent<MeshFilter>().mesh;
+        noseMesh = GetComponent<MeshFilter>().mesh;//attach mesh to nose
         noseMesh.Clear();
 
-        noseMesh.vertices = new Vector3[] {
-            new Vector3( gr,   1,  0),
-            new Vector3( gr-1,   -gr*0.6f,  -gr*0.75f),
-            new Vector3( gr-1,   -gr*0.6f,   gr*0.75f),
-            new Vector3( gr*1.5f, -gr*0.6f,   0)
-        };
+        noseMesh.vertices = new Vector3[] {//construct pyramid for nose
+            new Vector3( gr,   		     1,		  	0),
+            new Vector3( gr-1,    -gr*0.6f, -gr*0.75f),
+            new Vector3( gr-1, 	  -gr*0.6f,  gr*0.75f),
+            new Vector3( gr*1.5f, -gr*0.6f,   		0)};
 
-        List<int> noseTrianglesIndices = new List<int>() {
+        List<int> noseTrianglesIndices = new List<int>() {//arrange triangles
             0,  1,  2,
             0,  3,  1,
             0,  2,  3,
