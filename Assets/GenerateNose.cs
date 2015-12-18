@@ -6,7 +6,7 @@ using System.Linq;
 public class GenerateNose : MonoBehaviour {
 
     public GameObject Nose;
-    public Mesh NoseMesh;
+    public Mesh noseMesh;
 
     float gr = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;//golen ratio (a+b is to a as a is to b)
     Vector3 origin = new Vector3(0, 0, 0);
@@ -17,14 +17,14 @@ public class GenerateNose : MonoBehaviour {
         Nose.AddComponent<MeshFilter>();
         Nose.AddComponent<MeshRenderer>();
 
-        NoseMesh = GetComponent<MeshFilter>().mesh;
-        NoseMesh.Clear();
+        noseMesh = GetComponent<MeshFilter>().mesh;
+        noseMesh.Clear();
 
-        NoseMesh.vertices = new Vector3[] {
-            new Vector3( gr,   0,  0),
-            new Vector3( gr-1,   -gr,  -gr/4),
-            new Vector3( gr-1,   -gr,   gr/4),
-            new Vector3( gr*1.5f, -gr,   0)
+        noseMesh.vertices = new Vector3[] {
+            new Vector3( gr,   1,  0),
+            new Vector3( gr-1,   -gr*0.6f,  -gr*0.5f),
+            new Vector3( gr-1,   -gr*0.6f,   gr*0.5f),
+            new Vector3( gr*1.5f, -gr*0.6f,   0)
         };
 
         List<int> noseTrianglesIndices = new List<int>() {
@@ -32,7 +32,18 @@ public class GenerateNose : MonoBehaviour {
             0,  3,  1,
             0,  2,  3,
             1,  3,  2};
-        NoseMesh.triangles = noseTrianglesIndices.ToArray();
+        noseMesh.triangles = noseTrianglesIndices.ToArray();
+
+        //Set Colour
+        Material material = new Material(Shader.Find("Standard"));
+        Color fleshtone = new Color(10, 205, 180);
+        material.SetColor("fleshtone", fleshtone);
+
+        Nose.GetComponent<Renderer>().material = material;
+
+        noseMesh.RecalculateBounds();
+        noseMesh.RecalculateNormals();
+        noseMesh.Optimize();
     }
 
     void Update () {}

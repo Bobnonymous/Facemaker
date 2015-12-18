@@ -7,6 +7,7 @@ public class GenerateMesh : MonoBehaviour {
     
 	public GameObject Face;
 	public Mesh faceMesh;
+    MeshFilter meshFilter;
    
     float gr = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;//golen ratio (a+b is to a as a is to b)
     Vector3 origin = new Vector3 (0, 0, 0);
@@ -17,13 +18,15 @@ public class GenerateMesh : MonoBehaviour {
         Face.AddComponent<MeshFilter>();
         Face.AddComponent<MeshRenderer>();
 
+        meshFilter = GetComponent<MeshFilter>();
+
         faceMesh = GetComponent<MeshFilter>().mesh;
         faceMesh.Clear();
 
-        float radius = (Mathf.Sqrt((gr * gr) + 1));
-        int smoothLevel = 3;
+        float radius = (Mathf.Sqrt((gr * gr) + 1));//the radius is the diagonal of the rectangle with height = 1 and width = gr
+        int smoothLevel = 4;
 
-        // create 12 vertices of a icosahedron, via 3 intersecting rectangles
+        // create 12 vertices of an icosahedron, via 3 intersecting rectangles
         faceMesh.vertices = new Vector3[] {
             new Vector3( gr,   0,  -1),  //rectangle x point 1
             new Vector3(-gr,   0,  -1),  //rectangle x point 2
@@ -121,6 +124,7 @@ public class GenerateMesh : MonoBehaviour {
         }
         faceMesh.vertices = overwriteVertices.ToArray();
 
+        //Add some eyes
         GameObject eye1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);eye1.name = "rightEye";
         eye1.transform.position = new Vector3(xMostVertex.x*0.85f, 0, -gr*0.3f);
         eye1.transform.localScale = new Vector3(gr/3, 0.5f, 1);
@@ -128,19 +132,23 @@ public class GenerateMesh : MonoBehaviour {
         eye2.transform.position = new Vector3(xMostVertex.x*0.85f, 0, gr*0.3f);
         eye2.transform.localScale = new Vector3(gr/3, 0.5f, 1);
 
-        Color fleshtone = new Color(240, 205, 180);
-        Material material = new Material(Shader.Find("Diffuse"));
-        material.color = fleshtone;
+        //Set Colour
+        Material material = new Material(Shader.Find("Standard"));
+        Color fleshtone = new Color(10, 205, 180);
+        material.SetColor("fleshtone", fleshtone);
+
         Face.GetComponent<Renderer>().material = material;
 
-        //Doesnt Work VVVVV
-        faceMesh.uv = new Vector2[faceMesh.vertices.Length];
-		for (int i = 0; i < faceMesh.uv.Length; i++) {
-			faceMesh.uv[i] = new Vector2(faceMesh.vertices[i].x, faceMesh.vertices[i].z);
+        /*Color32[] meshColor = new Color32[faceMesh.triangles.Length];
+        for (int i = 0; i < meshColor.Length; i++) {
+            meshColor[i] = fleshtone;
+        }*/
+        
 
-            faceMesh.Optimize();
-        }
-	}
+        faceMesh.RecalculateBounds();
+        faceMesh.RecalculateNormals();
+        faceMesh.Optimize();
+    }
 	
 	bool grabbed;
 
