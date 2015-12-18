@@ -123,13 +123,16 @@ public class GenerateMesh : MonoBehaviour {
             overwriteVertex.z *= 0.9f;
             overwriteVertices.Add(overwriteVertex);
         }
-        faceMesh.vertices = overwriteVertices.ToArray();
+        faceMesh.SetVertices(overwriteVertices);
+        //faceMesh.vertices = overwriteVertices.ToArray();
 
         //Add some eyes
         GameObject eye1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);eye1.name = "rightEye";
+        eye1.transform.parent = Face.transform;
         eye1.transform.position = new Vector3(xMostVertex.x*0.85f, 0, -gr*0.3f);
         eye1.transform.localScale = new Vector3(gr/3, 0.5f, 1);
         GameObject eye2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);eye2.name = "leftEye";
+        eye2.transform.parent = Face.transform;
         eye2.transform.position = new Vector3(xMostVertex.x*0.85f, 0, gr*0.3f);
         eye2.transform.localScale = new Vector3(gr/3, 0.5f, 1);
 
@@ -152,9 +155,30 @@ public class GenerateMesh : MonoBehaviour {
     }
 	
 	bool grabbed;
+    public RaycastHit raycastHit;
 
 	void Update () {
-		/*if (Input.GetMouseButton (0)) {
+        /*Vector3 randomVertex = faceMesh.vertices[Random.Range(0, faceMesh.vertices.Length)];
+        Vector3 tempVertex = randomVertex *= Random.Range(-0.5f, 0.5f);
+        randomVertex = tempVertex;*/
+        List<Vector3> overwriteVertices = faceMesh.vertices.ToList();
+
+        if (Input.GetMouseButtonDown (0)) {
+            Debug.DrawLine(Camera.main.transform.position, Input.mousePosition, Color.red, 1, false);
+            Debug.DrawLine(origin, new Vector3(100,100,100), Color.red, 1, false);
+
+            //RaycastHit rayCastHit;
+            if (Physics.Raycast(Camera.main.transform.position, Input.mousePosition, out raycastHit)) {
+                int hitTriangle = raycastHit.triangleIndex;
+                SetVectorDist(overwriteVertices[hitTriangle * 3 + 0], origin, 99); ;
+                /*
+                Vector3 hitTriangle0 = overwriteVertices[hitTriangle * 3 + 0];
+                Vector3 hitTriangle1 = overwriteVertices[hitTriangle * 3 + 1];
+                Vector3 hitTriangle2 = overwriteVertices[hitTriangle * 3 + 2];*/
+            }  
+        }
+
+        /*if (Input.GetMouseButton (0)) {
 			RaycastHit raycastHit;
 			if (Physics.Raycast (Camera.main.transform.position, Input.mousePosition, out raycastHit)) {
 				grabbed = true;
@@ -167,7 +191,7 @@ public class GenerateMesh : MonoBehaviour {
 				SetVectorDist(p0, origin, 200);
 			}
 		}*/
-	}
+    }
 
     //returns the midpoint of two Vector3s
 	Vector3 GetMidpoint(Vector3 vectorA, Vector3 vectorB) {

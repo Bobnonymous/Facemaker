@@ -9,8 +9,7 @@ public class GenerateNose : MonoBehaviour {
     public Mesh noseMesh;
 
     float gr = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;//golen ratio (a+b is to a as a is to b)
-    Vector3 origin = new Vector3(0, 0, 0);
-
+    
     void Start()
     {
         Nose = GameObject.Find("Nose");
@@ -22,8 +21,8 @@ public class GenerateNose : MonoBehaviour {
 
         noseMesh.vertices = new Vector3[] {
             new Vector3( gr,   1,  0),
-            new Vector3( gr-1,   -gr*0.6f,  -gr*0.5f),
-            new Vector3( gr-1,   -gr*0.6f,   gr*0.5f),
+            new Vector3( gr-1,   -gr*0.6f,  -gr*0.75f),
+            new Vector3( gr-1,   -gr*0.6f,   gr*0.75f),
             new Vector3( gr*1.5f, -gr*0.6f,   0)
         };
 
