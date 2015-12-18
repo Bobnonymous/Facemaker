@@ -67,18 +67,18 @@ public class GenerateMesh : MonoBehaviour {
         for (int i = 0; i < smoothLevel; i++)
         {
             List<int> newTriangleIndices = new List<int>();
-            List<Vector3> newVertices = new List<Vector3>();//to be placed over facemesh.vertices
+            List<Vector3> newVertices = new List<Vector3>();//these lists will overwrite the previous vertices & triangles
 
-            for (int j = 0; j < trianglesIndices.Count; j += 3)//for every three indices, each set of three represents a triangle
+            for (int j = 0; j < trianglesIndices.Count; j += 3)//every set of three indices is a distinct triangle
             {
                 int sm = j * 2;//start multiplier
 
-                Vector3 vertexZero =    SetVectorDist (faceMesh.vertices[trianglesIndices[j]],      origin, radius);
+                Vector3 vertexZero =    SetVectorDist (faceMesh.vertices[trianglesIndices[j    ]],  origin, radius);
                 Vector3 vertexOne =     SetVectorDist (faceMesh.vertices[trianglesIndices[j + 1]],  origin, radius);
                 Vector3 vertexTwo =     SetVectorDist (faceMesh.vertices[trianglesIndices[j + 2]],  origin, radius);
 
-                Vector3 vertexThree =   SetVectorDist (GetMidpoint(vertexZero, vertexOne),  origin, radius);//gets the midpoints of the 
-                Vector3 vertexFour =    SetVectorDist (GetMidpoint(vertexOne, vertexTwo),   origin, radius);//three indices of each triangle
+                Vector3 vertexThree =   SetVectorDist (GetMidpoint(vertexZero, vertexOne),  origin, radius);//gets the midpoints of the three sides
+                Vector3 vertexFour =    SetVectorDist (GetMidpoint(vertexOne,  vertexTwo),  origin, radius);
                 Vector3 vertexFive =    SetVectorDist (GetMidpoint(vertexTwo, vertexZero),  origin, radius);
 
                 newVertices.AddRange(new[] {//adds the six new vertices to the list
@@ -104,22 +104,23 @@ public class GenerateMesh : MonoBehaviour {
 
         //Mesh mutation
         List<Vector3> overwriteVertices = new List<Vector3>();
-        Vector3 xMostVertex = new Vector3(0, 0, 0);//the vertex that is the furthest from the center on the x axis, this is the direction the face looks
 
-        for (int i = 0; i < faceMesh.vertices.Length; i++) {//for each vertex in facemesh
-
+        Vector3 xMostVertex = new Vector3();//the vertex that is the furthest from the center on the x axis, this is the direction the face looks
+        for (int i = 0; i < faceMesh.vertices.Length; i++) {
             if (faceMesh.vertices[i].x > xMostVertex.x)
-                xMostVertex.x = faceMesh.vertices[i].x;//finds x most
+                xMostVertex.x = faceMesh.vertices[i].x;
+        }
 
+        for (int i = 0; i < faceMesh.vertices.Length; i++) {//for each vertex in facemesh           
             Vector3 overwriteVertex = faceMesh.vertices[i];
-            if (overwriteVertex.y >= 0)
-            {
+            if (overwriteVertex.y >= 0){//shapign the upper half of the face
                 
             }
-            if (overwriteVertex.y < 0)
-            {
-                overwriteVertex.y = overwriteVertex.y * 1.3f;
+            if (overwriteVertex.y < 0) {//shaping the lower half of the face
+                overwriteVertex.x += (overwriteVertex.y * -0.25f);
+                overwriteVertex.y *= 1.4f;
             }
+            overwriteVertex.z *= 0.9f;
             overwriteVertices.Add(overwriteVertex);
         }
         faceMesh.vertices = overwriteVertices.ToArray();
@@ -153,7 +154,7 @@ public class GenerateMesh : MonoBehaviour {
 	bool grabbed;
 
 	void Update () {
-		if (Input.GetMouseButton (0)) {
+		/*if (Input.GetMouseButton (0)) {
 			RaycastHit raycastHit;
 			if (Physics.Raycast (Camera.main.transform.position, Input.mousePosition, out raycastHit)) {
 				grabbed = true;
@@ -165,7 +166,7 @@ public class GenerateMesh : MonoBehaviour {
 				SetVectorDist(p0, origin, 200);
 				SetVectorDist(p0, origin, 200);
 			}
-		}
+		}*/
 	}
 
     //returns the midpoint of two Vector3s
