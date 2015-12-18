@@ -18,13 +18,11 @@ public class GenerateMesh : MonoBehaviour {
         Face.AddComponent<MeshFilter>();
         Face.AddComponent<MeshRenderer>();
 
-        //meshFilter = GetComponent<MeshFilter>();
-
         faceMesh = GetComponent<MeshFilter>().mesh;
         faceMesh.Clear();
 
         float radius = (Mathf.Sqrt((gr * gr) + 1));//the radius is the diagonal of the rectangle with height = 1 and width = gr
-        int smoothLevel = 3;
+        int smoothLevel = 4;
 
         // create 12 vertices of an icosahedron, via 3 intersecting rectangles
         faceMesh.vertices = new Vector3[] {
@@ -66,8 +64,8 @@ public class GenerateMesh : MonoBehaviour {
         //Triangle smoothing loop, each loop quadruples the number of faces
         for (int i = 0; i < smoothLevel; i++)
         {
-            List<int> newTriangleIndices = new List<int>();
             List<Vector3> newVertices = new List<Vector3>();//these lists will overwrite the previous vertices & triangles
+            List<int> newTriangleIndices = new List<int>();
 
             for (int j = 0; j < trianglesIndices.Count; j += 3)//every set of three indices is a distinct triangle
             {
@@ -77,7 +75,7 @@ public class GenerateMesh : MonoBehaviour {
                 Vector3 vertexOne =     SetVectorDist (faceMesh.vertices[trianglesIndices[j + 1]],  origin, radius);
                 Vector3 vertexTwo =     SetVectorDist (faceMesh.vertices[trianglesIndices[j + 2]],  origin, radius);
 
-                Vector3 vertexThree =   SetVectorDist (GetMidpoint(vertexZero, vertexOne),  origin, radius);//gets the midpoints of the three sides
+                Vector3 vertexThree =   SetVectorDist (GetMidpoint(vertexZero, vertexOne),  origin, radius);//get the midpoints of the three sides
                 Vector3 vertexFour =    SetVectorDist (GetMidpoint(vertexOne,  vertexTwo),  origin, radius);
                 Vector3 vertexFive =    SetVectorDist (GetMidpoint(vertexTwo, vertexZero),  origin, radius);
 
@@ -102,17 +100,12 @@ public class GenerateMesh : MonoBehaviour {
         }
 
 
-        //Mesh mutation
+        //Mesh mutation, based on some basic facial proportions
         List<Vector3> overwriteVertices = new List<Vector3>();
-
-        Vector3 xMostVertex = new Vector3();//the vertex that is the furthest from the center on the x axis, this is the direction the face looks
         for (int i = 0; i < faceMesh.vertices.Length; i++) {
-            if (faceMesh.vertices[i].x > xMostVertex.x)
-                xMostVertex.x = faceMesh.vertices[i].x;
-        }
 
-        for (int i = 0; i < faceMesh.vertices.Length; i++) {//for each vertex in facemesh           
             Vector3 overwriteVertex = faceMesh.vertices[i];
+
             if (overwriteVertex.y >= 0){//shapign the upper half of the face
                 overwriteVertex.y += gr*0.3f;
             }
@@ -124,17 +117,9 @@ public class GenerateMesh : MonoBehaviour {
             overwriteVertices.Add(overwriteVertex);
         }
         faceMesh.SetVertices(overwriteVertices);
-        //faceMesh.vertices = overwriteVertices.ToArray();
-
+        
         //Add some eyes
-        GameObject eye1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);eye1.name = "rightEye";
-        eye1.transform.parent = Face.transform;
-        eye1.transform.position = new Vector3(xMostVertex.x*0.85f, 0, -gr*0.3f);
-        eye1.transform.localScale = new Vector3(gr/3, 0.5f, 1);
-        GameObject eye2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);eye2.name = "leftEye";
-        eye2.transform.parent = Face.transform;
-        eye2.transform.position = new Vector3(xMostVertex.x*0.85f, 0, gr*0.3f);
-        eye2.transform.localScale = new Vector3(gr/3, 0.5f, 1);
+        AddeEyes(Face, faceMesh);
 
         //Set Colour
         Material material = new Material(Shader.Find("Standard"));
@@ -148,7 +133,6 @@ public class GenerateMesh : MonoBehaviour {
             meshColor[i] = fleshtone;
         }*/
         
-
         faceMesh.RecalculateBounds();
         faceMesh.RecalculateNormals();
         faceMesh.Optimize();
@@ -157,34 +141,34 @@ public class GenerateMesh : MonoBehaviour {
     }
 	
     public RaycastHit raycastHit;
-    
-	void Update () {
-        /*Vector3 randomVertex = faceMesh.vertices[Random.Range(0, faceMesh.vertices.Length)];
-        Vector3 tempVertex = randomVertex *= Random.Range(-0.5f, 0.5f);
-        randomVertex = tempVertex;*/
-        Vector3 cameraPos = GameObject.FindGameObjectWithTag("MainCamera").transform.position;
-        List<Vector3> overwriteVertices = faceMesh.vertices.ToList();
+    List<Vector3> overwriteVertices = new List<Vector3>();
 
+    void Update () {
+        GameObject cameraObject = GameObject.FindGameObjectWithTag("MainCamera");
+        Camera camera = cameraObject.GetComponent<Camera>();
+        overwriteVertices = faceMesh.vertices.ToList();
 
-        if (Input.GetMouseButtonDown(0))
-        {
+        if (Input.GetMouseButton(0)) {
+            Physics.Raycast(camera.transform.position, camera.transform.forward, out raycastHit);
+            //Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition));
+           
+            Vector3 hitPoint = raycastHit.point;
+            Debug.Log(hitPoint + "hitpoint");
+            Debug.Log(raycastHit.triangleIndex + "index of triangle");
+            
+            for (int i = 0; i < overwriteVertices.Count; i++) {
+                if (Vector3.Distance(overwriteVertices[i], hitPoint) < 0.5f) {
+
+                    Debug.Log(overwriteVertices[i]);//Debug.Log(faceMesh.vertices[i]);
+
+                    float distance = Vector3.Distance(overwriteVertices[i], hitPoint);
+                    Debug.Log(distance + "this is distance");
+                    overwriteVertices[i] *= 1.05f;// * distance;
+
+                    Debug.Log(overwriteVertices[i]);//Debug.Log(faceMesh.vertices[i]);
+                }
+            }
             faceMesh.SetVertices(overwriteVertices);
-
-            //Debug.DrawLine(Camera.main.transform.position, Input.mousePosition, Color.red, 1, false);
-            //Debug.DrawLine(origin, new Vector3(100, 100, 100), Color.red, 1, false);
-            Physics.Raycast(cameraPos, Input.mousePosition, out raycastHit);
-        
-            /*
-            //RaycastHit rayCastHit;
-            if (Physics.Raycast(Camera.main.transform.position, Input.mousePosition, out raycastHit))
-            {
-                int hitTriangle = raycastHit.triangleIndex;
-                SetVectorDist(overwriteVertices[hitTriangle * 3 + 0], origin, 99); ;
-                /*
-                Vector3 hitTriangle0 = overwriteVertices[hitTriangle * 3 + 0];
-                Vector3 hitTriangle1 = overwriteVertices[hitTriangle * 3 + 1];
-                Vector3 hitTriangle2 = overwriteVertices[hitTriangle * 3 + 2];
-            }*/
         }
     }
 
@@ -204,6 +188,25 @@ public class GenerateMesh : MonoBehaviour {
 		offset.Normalize ();
 		return offset * distance;
 	}
+
+    void AddeEyes(GameObject Face, Mesh faceMesh) {
+        Vector3 xMostVertex = new Vector3(); //the vertex that is the furthest from the center on the x axis, this is the direction the face looks
+            for (int i = 0; i < faceMesh.vertices.Length; i++) { 
+            if (faceMesh.vertices[i].x > xMostVertex.x)
+                xMostVertex.x = faceMesh.vertices[i].x;
+        }
+
+        GameObject rightEye = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        rightEye.name = "rightEye";
+        rightEye.transform.parent = Face.transform;
+        rightEye.transform.position = new Vector3(xMostVertex.x * 0.85f, 0, -gr * 0.3f);
+        rightEye.transform.localScale = new Vector3(gr / 3, 0.5f, 1);
+        GameObject leftEye = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        leftEye.name = "leftEye";
+        leftEye.transform.parent = Face.transform;
+        leftEye.transform.position = new Vector3(xMostVertex.x * 0.85f, 0, gr * 0.3f);
+        leftEye.transform.localScale = new Vector3(gr / 3, 0.5f, 1);
+    }
 }
 
     
