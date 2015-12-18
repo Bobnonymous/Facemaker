@@ -148,7 +148,7 @@ public class GenerateMesh : MonoBehaviour {
         Camera camera = cameraObject.GetComponent<Camera>();
         overwriteVertices = faceMesh.vertices.ToList();
 
-        if (Input.GetMouseButton(0)) {
+        if (Input.GetMouseButton(0) || Input.GetMouseButton(1)) {
             Physics.Raycast(camera.transform.position, camera.transform.forward, out raycastHit);
             //Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition));
            
@@ -163,7 +163,10 @@ public class GenerateMesh : MonoBehaviour {
 
                     float distance = Vector3.Distance(overwriteVertices[i], hitPoint);
                     Debug.Log(distance + "this is distance");
-                    overwriteVertices[i] *= 1.05f;// * distance;
+                    if(Input.GetMouseButton(0))
+                        overwriteVertices[i] *= 1.05f;// * distance;
+                    if (Input.GetMouseButton(1))
+                        overwriteVertices[i] *= 0.95f;
 
                     Debug.Log(overwriteVertices[i]);//Debug.Log(faceMesh.vertices[i]);
                 }
